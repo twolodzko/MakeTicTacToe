@@ -7,7 +7,6 @@ ROW2 := $(wordlist 4, 6, $(BOARD))
 ROW3 := $(wordlist 7, 9, $(BOARD))
 X := $(firstword $(MOVE))
 Y := $(word 2, $(MOVE))
-WRONGMOVE = $(error "Invalid move:" $(MOVE))
 
 PLAYER := o
 ifeq ($(PLAYER), o)
@@ -22,6 +21,7 @@ else
 POSITION := .
 endif
 
+wrongmove = $(error "Invalid move:" $(MOVE))
 takenfields = $(words $(filter $(PLAYER), $(1)))
 
 play: print
@@ -63,7 +63,7 @@ else ifeq ($(Y), 3)
 		BOARD="$(ROW1) $(ROW2) $(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW3)")" \
 		PLAYER=$(PLAYER)
 else
-	@ $(WRONGMOVE)
+	@ $(wrongmove)
 endif
 
 isfinished:
@@ -93,15 +93,15 @@ else ifeq ($(X), 2)
 else ifeq ($(X), 3)
 	@ echo "$(wordlist 1, 2, $(ROW)) $(PLAYER)"
 else
-	@ $(WRONGMOVE)
+	@ $(wrongmove)
 endif
 
 check:
 	@ echo $(firstword \
 				$(filter 3, \
-					$(shell $(MAKE) checkrows ROW1="$(ROW1)" ROW2="$(ROW2)" ROW3="$(ROW3)" PLAYER=$(PLAYER)) \
-					$(shell $(MAKE) checkcols ROW1="$(ROW1)" ROW2="$(ROW2)" ROW3="$(ROW3)" PLAYER=$(PLAYER)) \
-					$(shell $(MAKE) checkdiags ROW1="$(ROW1)" ROW2="$(ROW2)" ROW3="$(ROW3)" PLAYER=$(PLAYER))))
+					$(shell $(MAKE) checkrows BOARD="$(BOARD)" PLAYER=$(PLAYER)) \
+					$(shell $(MAKE) checkcols BOARD="$(BOARD)" PLAYER=$(PLAYER)) \
+					$(shell $(MAKE) checkdiags BOARD="$(BOARD)" PLAYER=$(PLAYER))))
 
 checkrows:
 	@ echo $(foreach i, 1 2 3, \
