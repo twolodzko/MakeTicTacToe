@@ -25,10 +25,14 @@ endif
 takenfields = $(words $(filter $(PLAYER), $(1)))
 
 play: print
+ifeq ($(words $(filter ., $(BOARD))), 0)
+	@ $(warning "Nobody won.")
+else
 	@ $(MAKE) move \
 		MOVE="$(shell $(MAKE) input PLAYER=$(PLAYER))" \
 		BOARD="$(BOARD)" \
 		PLAYER=$(PLAYER)
+endif
 
 print:
 	@ echo "y\x 1 2 3"
