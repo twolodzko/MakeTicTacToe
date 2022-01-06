@@ -45,7 +45,7 @@ move:
 ifneq ($(POSITION), .)
 	$(warning "This position is already taken")
 	@ $(MAKE) play \
-		ROW1="$(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW1)")" \
+		ROW1="$(ROW1)" \
 		ROW2="$(ROW2)" \
 		ROW3="$(ROW3)" \
 		PLAYER=$(PLAYER)
