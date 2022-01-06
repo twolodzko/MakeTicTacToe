@@ -15,76 +15,74 @@ NEXTPLAYER := o
 endif
 
 ifdef MOVE
-POSITION := $(word $(X), $(ROW$(Y)))
+HERE := $(word $(X), $(ROW$(Y)))
 else
-POSITION := .
+HERE := .
 endif
 
 wrongmove = $(error "Invalid move:" $(MOVE))
 takenfields = $(words $(filter $(PLAYER), $(1)))
 
-play: print
+play: show
 ifeq ($(words $(filter ., $(BOARD))), 0)
 	@ $(warning "Nobody won.")
 else
-	@ $(MAKE) move \
-		MOVE="$(shell $(MAKE) input PLAYER=$(PLAYER))" \
+	@ $(MAKE) makemove \
+		MOVE="$(shell $(MAKE) getinput PLAYER=$(PLAYER))" \
 		BOARD="$(BOARD)" \
 		PLAYER=$(PLAYER)
 endif
 
-print:
+show:
 	@ echo "y\x 1 2 3"
 	@ echo "1   $(ROW1)"
 	@ echo "2   $(ROW2)"
 	@ echo "3   $(ROW3)"
 
-input:
+getinput:
 	@ echo
 	@ read -p "Player $(PLAYER) what's your move? (x y) " x y; echo $$x $$y;
 
-move:
-ifneq ($(POSITION), .)
+makemove:
+ifneq ($(HERE), .)
 	$(warning "This position is already taken")
 	@ $(MAKE) play \
 		BOARD="$(BOARD)" \
 		PLAYER=$(PLAYER)
 else ifeq ($(Y), 1)
 	@ $(MAKE) isfinished \
-		BOARD="$(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW1)") $(ROW2) $(ROW3)" \
+		BOARD="$(shell $(MAKE) set MOVE="$(MOVE)" ROW="$(ROW1)") $(ROW2) $(ROW3)" \
 		PLAYER=$(PLAYER)
 else ifeq ($(Y), 2)
 	@ $(MAKE) isfinished \
-		BOARD="$(ROW1) $(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW2)") $(ROW3)" \
+		BOARD="$(ROW1) $(shell $(MAKE) set MOVE="$(MOVE)" ROW="$(ROW2)") $(ROW3)" \
 		PLAYER=$(PLAYER)
 else ifeq ($(Y), 3)
 	@ $(MAKE) isfinished \
-		BOARD="$(ROW1) $(ROW2) $(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW3)")" \
+		BOARD="$(ROW1) $(ROW2) $(shell $(MAKE) set MOVE="$(MOVE)" ROW="$(ROW3)")" \
 		PLAYER=$(PLAYER)
 else
 	@ $(wrongmove)
 endif
 
 isfinished:
-	@ $(MAKE) next \
+	@ $(MAKE) nextturn \
 		BOARD="$(BOARD)" \
 		PLAYER=$(PLAYER) \
-		CHECK=$(shell $(MAKE) check \
-			BOARD="$(BOARD)" \
-			PLAYER=$(PLAYER))
+		CHECK=$(shell $(MAKE) check BOARD="$(BOARD)" PLAYER=$(PLAYER))
 
-next:
+nextturn:
 ifeq ($(CHECK), 3)
 	@ echo
 	@ echo "Player $(PLAYER) won!"
-	@ $(MAKE) print BOARD="$(BOARD)"
+	@ $(MAKE) show BOARD="$(BOARD)"
 else
 	@ $(MAKE) play \
 		BOARD="$(BOARD)" \
 		PLAYER=$(NEXTPLAYER)
 endif
 
-setrow:
+set:
 ifeq ($(X), 1)
 	@ echo "$(PLAYER) $(wordlist 2, 3, $(ROW))"
 else ifeq ($(X), 2)
