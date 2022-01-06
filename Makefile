@@ -1,9 +1,10 @@
 MAKEFLAGS += --no-print-directory
 MAKEFLAGS += --no-builtin-rules
 
-ROW1 := . . .
-ROW2 := . . .
-ROW3 := . . .
+BOARD := . . . . . . . . .
+ROW1 := $(wordlist 1, 3, $(BOARD))
+ROW2 := $(wordlist 4, 6, $(BOARD))
+ROW3 := $(wordlist 7, 9, $(BOARD))
 X := $(firstword $(MOVE))
 Y := $(word 2, $(MOVE))
 WRONGMOVE = $(error "Invalid move:" $(MOVE))
@@ -26,9 +27,7 @@ takenfields = $(words $(filter $(PLAYER), $(1)))
 play: print
 	@ $(MAKE) move \
 		MOVE="$(shell $(MAKE) input PLAYER=$(PLAYER))" \
-		ROW1="$(ROW1)" \
-		ROW2="$(ROW2)" \
-		ROW3="$(ROW3)" \
+		BOARD="$(BOARD)" \
 		PLAYER=$(PLAYER)
 
 print:
@@ -45,27 +44,19 @@ move:
 ifneq ($(POSITION), .)
 	$(warning "This position is already taken")
 	@ $(MAKE) play \
-		ROW1="$(ROW1)" \
-		ROW2="$(ROW2)" \
-		ROW3="$(ROW3)" \
+		BOARD="$(BOARD)" \
 		PLAYER=$(PLAYER)
 else ifeq ($(Y), 1)
 	@ $(MAKE) isfinished \
-		ROW1="$(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW1)")" \
-		ROW2="$(ROW2)" \
-		ROW3="$(ROW3)" \
+		BOARD="$(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW1)") $(ROW2) $(ROW3)" \
 		PLAYER=$(PLAYER)
 else ifeq ($(Y), 2)
 	@ $(MAKE) isfinished \
-		ROW1="$(ROW1)" \
-		ROW2="$(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW2)")" \
-		ROW3="$(ROW3)" \
+		BOARD="$(ROW1) $(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW2)") $(ROW3)" \
 		PLAYER=$(PLAYER)
 else ifeq ($(Y), 3)
 	@ $(MAKE) isfinished \
-		ROW1="$(ROW1)" \
-		ROW2="$(ROW2)" \
-		ROW3="$(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW3)")" \
+		BOARD="$(ROW1) $(ROW2) $(shell $(MAKE) setrow MOVE="$(MOVE)" ROW="$(ROW3)")" \
 		PLAYER=$(PLAYER)
 else
 	@ $(WRONGMOVE)
@@ -73,29 +64,20 @@ endif
 
 isfinished:
 	@ $(MAKE) next \
-		ROW1="$(ROW1)" \
-		ROW2="$(ROW2)" \
-		ROW3="$(ROW3)" \
+		BOARD="$(BOARD)" \
 		PLAYER=$(PLAYER) \
 		CHECK=$(shell $(MAKE) check \
-			ROW1="$(ROW1)" \
-			ROW2="$(ROW2)" \
-			ROW3="$(ROW3)" \
+			BOARD="$(BOARD)" \
 			PLAYER=$(PLAYER))
 
 next:
 ifeq ($(CHECK), 3)
 	@ echo
 	@ echo "Player $(PLAYER) won!"
-	@ $(MAKE) print \
-		ROW1="$(ROW1)" \
-		ROW2="$(ROW2)" \
-		ROW3="$(ROW3)"
+	@ $(MAKE) print BOARD="$(BOARD)"
 else
 	@ $(MAKE) play \
-		ROW1="$(ROW1)" \
-		ROW2="$(ROW2)" \
-		ROW3="$(ROW3)" \
+		BOARD="$(BOARD)" \
 		PLAYER=$(NEXTPLAYER)
 endif
 
