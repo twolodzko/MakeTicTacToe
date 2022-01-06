@@ -1,5 +1,4 @@
 MAKEFLAGS += --no-print-directory
-MAKEFLAGS += --no-builtin-rules
 
 BOARD := . . . . . . . . .
 ROW1 := $(wordlist 1, 3, $(BOARD))
